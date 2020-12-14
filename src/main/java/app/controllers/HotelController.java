@@ -41,7 +41,7 @@ public class HotelController {
 					data.setActive(false);
 					data.setStatus(HotelStatus.APPROVED);
 					var u = data.getUser();
-					u.setActive(false);
+					u.setActive(true);
 					data.setUser(u);
 					
 					hotelrepo.save(data).subscribe(hotel ->{
