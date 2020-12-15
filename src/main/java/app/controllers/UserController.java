@@ -3,10 +3,12 @@ package app.controllers;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,7 +20,6 @@ import app.repositories.HotelRepository;
 import app.repositories.UserRepository;
 import app.utilities.EmailService;
 import app.utilities.OTPUtility;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -73,7 +74,7 @@ public class UserController {
 	@PostMapping("signup")
 	public Mono<GenericResponse<Object>> registerUser(@RequestBody User user){
 		return Mono.create(sink->{
-			if(Objects.nonNull(user.getEmail()) && Objects.nonNull(user.getPassword())) {
+			if(!user.getEmail().isBlank() && !user.getPassword().isBlank()) {
 				userrepo.findByEmail(user.getEmail())
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					String[] roles = {"ADMIN"};
@@ -109,18 +110,22 @@ public class UserController {
 					sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("No user account").build());
 				}))
 				.subscribe(data ->{
-					if(data.getPassword().equals(password)) {
-						sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("Login successfull").build());
-					}else {
-						sink.success(GenericResponse.builder().body(null).code(ResponseCode.OK.name()).message("Login not successfull").build());
+					if(data.isActive()) {
+						if(data.getPassword().equals(password)) {
+							sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("Login successfull").build());
+						}else {
+							sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("Login not successfull").build());
 
+						}
+					}else {
+						sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message("User is not active").build());
 					}
 				}, err->{
-					sink.success(GenericResponse.builder().body(null).code(ResponseCode.OK.name()).message(err.getMessage()).build());
+					sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
 
 				});
 			}else {
-				sink.success(GenericResponse.builder().body(null).code(ResponseCode.OK.name()).message("Email or password not entered").build());
+				sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message("Email or password not entered").build());
 			}
 		});
 	}
@@ -135,6 +140,7 @@ public class UserController {
 			.subscribe(hot ->{
 				userrepo.findByEmail(email).subscribe(usr ->{
 					usr.setActive(true);
+					usr.setPassword(password);
 					userrepo.save(usr).subscribe(fusr->{
 						hot.setUser(fusr);
 						hot.setStatus(HotelStatus.VERIFIED);
