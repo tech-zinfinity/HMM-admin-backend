@@ -2,7 +2,7 @@ package app.enums;
 
 public enum HotelStatus {
 
-	DRAFT ("DRAFT"), APPROVED ("APPROVED"), REJECTED ("REJECTED"), PUBLISHED ("PUBLISHED");
+	REQUESTED ("REQUESTED"), APPROVED ("APPROVED"), REJECTED ("REJECTED"), PUBLISHED ("PUBLISHED"), VERIFIED("VERIFIED");
 	
 	public final String label;
 

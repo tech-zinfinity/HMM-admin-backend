@@ -42,6 +42,7 @@ public class OTPUtility {
 	 }
 	 
 	 public int generateOTP(String key){
+		System.out.println("sending otp");
 		Random random = new Random();
 		int otp = 100000 + random.nextInt(900000);
 		otpCache.put(key, otp);

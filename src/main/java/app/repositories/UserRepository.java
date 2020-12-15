@@ -8,7 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface UserRepository extends ReactiveMongoRepository<User, String>{
 
-	@Query("{'username':?0)}")
+	@Query("{'username':?0}")
 	public Mono<User> findByUsername(String username);
 	
 	@Query("{'email':?0}")

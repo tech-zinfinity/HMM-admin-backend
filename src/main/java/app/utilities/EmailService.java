@@ -28,11 +28,17 @@ public class EmailService {
 		return Mono.fromCallable(() ->{
 			SimpleMailMessage message = new SimpleMailMessage();
 			try {
+				JavaMailSenderImpl sender = new JavaMailSenderImpl();
+				sender.setHost("cp-wc09.lon01.ds.network");
+				sender.setPort(587);
+				sender.setUsername("info@earthenflavours.com");
+				sender.setPassword("info@987");
 				message.setFrom(MailContants.mail_from_earthenflavours_info);
+				
 				message.setTo(to);
 				message.setSubject(subject);
 				message.setText(text);
-				emailsender.send(message);
+				sender.send(message);
 				return true;
 			}catch(Exception e){
 				e.printStackTrace();
@@ -76,24 +82,31 @@ public class EmailService {
 //				FileSystemResource res = new FileSystemResource(ResourceUtils.getFile("classpath:images/EF.png"));
 //				helper.addInline("EFLogo", res);
 				sender.send(message);
+				System.out.println(true);
 				return true;
 			}catch(Exception e){
 				e.printStackTrace();
+				System.out.println(false);
 				return false;
 			}	
 		});
 	}
 	
-	public Mono<Boolean> sendApprovalMsg(String[] to,String subject,String text) throws MailParseException, 
+	public Mono<Boolean> sendApprovalMsg(String to,String subject,String text) throws MailParseException, 
 	MailAuthenticationException, MailPreparationException, MailSendException{
 		return Mono.fromCallable(() ->{
 			SimpleMailMessage message = new SimpleMailMessage();
 			try {
+				JavaMailSenderImpl sender = new JavaMailSenderImpl();
+				sender.setHost("cp-wc09.lon01.ds.network");
+				sender.setPort(587);
+				sender.setUsername("info@earthenflavours.com");
+				sender.setPassword("info@987");
 				message.setFrom(MailContants.mail_from_earthenflavours_info);
 				message.setTo(to);
 				message.setSubject(subject);
 				message.setText(text);
-				emailsender.send(message);
+				sender.send(message);
 				return true;
 			}catch(Exception e){
 				e.printStackTrace();

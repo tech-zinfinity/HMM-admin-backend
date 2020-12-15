@@ -25,8 +25,9 @@ public class HotelService {
 	
 	//Add Hotel Service
 	public Mono<GenericResponse<Object>> addHotel(Hotel hotel, User user){
+		System.out.println(user.getEmail());
 		return Mono.create(sink -> {
-			this.userrepo.findByUsername(user.getUsername())
+			this.userrepo.findByUsername(user.getEmail())
 			.switchIfEmpty(Mono.fromRunnable( () ->{
 				user.setUsername(user.getEmail());
 				user.setActive(false);
@@ -37,7 +38,7 @@ public class HotelService {
 				if(user.getEmail() != null && !(user.getEmail().isBlank())) {
 					userrepo.insert(user)
 					.subscribe(usr ->{
-						hotel.setStatus(HotelStatus.DRAFT);
+						hotel.setStatus(HotelStatus.REQUESTED);
 						hotel.setActive(false);
 						hotel.setUser(usr);
 						
@@ -81,6 +82,7 @@ public class HotelService {
 						.message("This user is already registered, please use different email id").build());
 
 			}, err ->{
+				err.printStackTrace();
 				sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name())
 						.message("System is down, please try after some time").build());
 			});

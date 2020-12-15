@@ -3,6 +3,7 @@ package app.controllers;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import app.constants.ResponseCode;
 import app.entities.User;
+import app.enums.HotelStatus;
 import app.http.response.GenericResponse;
+import app.repositories.HotelRepository;
 import app.repositories.UserRepository;
 import app.utilities.EmailService;
 import app.utilities.OTPUtility;
@@ -20,14 +23,17 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("user")
+@CrossOrigin(allowedHeaders="*")
 public class UserController {
 
 	@Autowired private OTPUtility otpUtility;
 	@Autowired private UserRepository userrepo;
 	@Autowired private EmailService emailService;
+	@Autowired private HotelRepository hotelrepo;
 	
 	@GetMapping("sendotp/{emailid}")
 	public Mono<GenericResponse<Object>> sendOtp(@PathVariable("emailid") String emailid){
+		System.out.println(emailid);
 		return Mono.create(sink ->{
 			userrepo.findByEmail(emailid)
 			.switchIfEmpty(Mono.fromRunnable(()->{
@@ -42,7 +48,15 @@ public class UserController {
 				});
 			}))
 			.subscribe(data -> {
-				sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("Email is already registered").body(null).build());
+				emailService.sendOTP(emailid, "Please verify OTP", String.valueOf(otpUtility.generateOTP(emailid))).subscribe(ot->{
+					if(ot) {
+						sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).message("Sent Successfully").body(null).build());
+					}else {
+						sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("Otp sending failed").body(null).build());
+					}
+				}, er->{
+					sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(er.getMessage()).body(null).build());
+				});
 			} ,err -> {
 				sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).body(null).build());
 			});
@@ -108,6 +122,40 @@ public class UserController {
 			}else {
 				sink.success(GenericResponse.builder().body(null).code(ResponseCode.OK.name()).message("Email or password not entered").build());
 			}
+		});
+	}
+	
+	@GetMapping("activate/{password}/{email}")
+	public Mono<GenericResponse<Object>> activateHotelAccount(@PathVariable("password") String password, @PathVariable("email") String email) {
+		return Mono.create(sink ->{
+			hotelrepo.findByUsername(email)
+			.switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("No user found").build());
+			}))
+			.subscribe(hot ->{
+				userrepo.findByEmail(email).subscribe(usr ->{
+					usr.setActive(true);
+					userrepo.save(usr).subscribe(fusr->{
+						hot.setUser(fusr);
+						hot.setStatus(HotelStatus.VERIFIED);
+						hot.setActive(false);
+						hotelrepo.save(hot).subscribe(fhot->{
+							sink.success(GenericResponse.builder().body(fhot).code(ResponseCode.OK.name()).message("Activated Successfully").build());
+						}, e->{
+							sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(e.getMessage()).build());
+						});
+					}, er->{
+						sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(er.getMessage()).build());
+
+					});
+				}, er->{
+					sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(er.getMessage()).build());
+
+				});
+			}, err->{
+				sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+
+			});
 		});
 	}
 }
