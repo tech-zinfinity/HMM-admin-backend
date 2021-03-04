@@ -13,21 +13,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @AllArgsConstructor @NoArgsConstructor @Builder
-@Document(collection = "USER")
-public class User {
+@Document(collection = "Customer")
+public class Customer {
+
 	@Id
 	private String id;
-	private String username;
+	private String firstName;
+	private String lastName;
 	private String email;
 	private String phoneNo;
-	private String password;
-	private String[] roles;
-	@Builder.Default 
-	private boolean active = false;
+	private String userId;
+	private boolean active;
+	private String profilePicUrl;
 	@CreatedDate
 	private LocalDateTime createdOn;
 	@LastModifiedDate
 	private LocalDateTime updatedOn;	
-	private boolean verified; // after otp validation 
-
 }
