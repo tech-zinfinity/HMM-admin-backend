@@ -62,7 +62,7 @@ public class HotelController {
 												sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("Hotel Approved Successfully, But unable to send mail").build());
 											}
 										}, err->{
-											sink.success(GenericResponse.builder().body(data).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+											sink. success(GenericResponse.builder().body(data).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
 										});
 							}, err ->{
 								sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
