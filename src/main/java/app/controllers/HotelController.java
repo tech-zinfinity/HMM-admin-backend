@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 @RestController @RequestMapping("hotel")
 public class HotelController {
 	
+	
 	@Autowired private HotelService hotelService;
 	@Autowired private HotelRepository hotelrepo;
 	@Autowired private EmailService emailService;
@@ -222,6 +223,22 @@ public class HotelController {
 				});
 			},err -> {
 				sink.success(GenericResponse.builder().body(null).code(ResponseCode.OK.name()).message(err.getMessage()).build());
+			});
+		});
+	}
+	
+	@GetMapping("getHotelByEmail/{email}")
+	public Mono<GenericResponse<Object>> getHotel(@PathVariable("email") String email) {
+		return Mono.create(sink -> {
+			hotelrepo.findByUsername(email)
+			.switchIfEmpty(Mono.fromRunnable(() -> {
+				sink.success(GenericResponse.builder().code("NOT FOUND").body(null).message("Hotel  with this email not Found").build());
+			}))
+			.subscribe(hotel -> {
+				
+				sink.success(GenericResponse.builder().code("OK").body(hotel).message("HOtel Retrieved Successfully").build());
+			}, err -> {
+				sink.error(err);
 			});
 		});
 	}

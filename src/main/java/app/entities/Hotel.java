@@ -1,5 +1,7 @@
 package app.entities;
 
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -30,4 +32,7 @@ public class Hotel {
 	private boolean deleted;
 	private String photo;
 	private User user;
+	
+	private List<Menu> menus;
+	private List<Table> tables;
 }
