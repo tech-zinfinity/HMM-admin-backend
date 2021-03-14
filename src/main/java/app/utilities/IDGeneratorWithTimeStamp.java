@@ -8,6 +8,6 @@ import org.springframework.stereotype.Service;
 public class IDGeneratorWithTimeStamp {
 
 	public String generateID() {
-		return String.valueOf(new Timestamp(System.currentTimeMillis()).getTime())+'-'+UUID.randomUUID().toString();
+		return String.valueOf(new Timestamp(System.currentTimeMillis()).getTime()) + '-' + UUID.randomUUID().toString();
 	}
 }

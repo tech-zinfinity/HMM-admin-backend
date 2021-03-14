@@ -11,18 +11,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
+
 import app.dboperations.DBOperations;
+import app.entities.Constants;
+import app.entities.Hotel;
+import app.entities.Menu;
 import app.entities.Table;
 import app.http.response.GenericResponse;
+import app.repositories.ConstantsRepository;
 import app.repositories.HotelRepository;
 import app.repositories.UserRepository;
+import app.services.HotelOperationalService;
 import app.services.HotelService;
 import app.services.TableService;
 import app.utilities.EmailService;
 import app.utilities.IDGeneratorWithTimeStamp;
+import ch.qos.logback.core.db.dialect.SybaseSqlAnywhereDialect;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @CrossOrigin(allowedHeaders="*")
@@ -31,9 +42,13 @@ import reactor.core.publisher.Mono;
 public class HotelOperationalController {
 
 	
+	@Autowired private HotelService hotelService;
+	@Autowired private HotelOperationalService hotelopservice;
 	@Autowired private HotelRepository hotelrepo;
 	@Autowired private TableService tableserice;
 	
+	@Autowired private IDGeneratorWithTimeStamp idgen;
+	@Autowired private ConstantsRepository consrepo;
 	
 	@GetMapping("registerTable/{hotelId}/{tableNo}/{tableId}")
 	public Mono<ResponseEntity<Object>> registerTable(@PathVariable("hotelId") String hotelId, @PathVariable("tableNo") String tableNo
@@ -83,5 +98,29 @@ public class HotelOperationalController {
 			});
 			
 		});
+	}
+	
+	@PostMapping("addMenubyCategory/{id}")
+	public Mono<GenericResponse<Object>> addMenubyCategory(@PathVariable String id,@RequestBody Menu menu) {
+		return hotelopservice.addMenubyCategory(id, menu);
+	}
+	
+	@GetMapping("getMenusByHotelId/{id}")
+	public Mono<Object> getMenuByHotelId(@PathVariable("id") String id) {
+			return hotelrepo.findById(id)
+					.switchIfEmpty(Mono.just(new Hotel()))
+					.map(hotel -> hotel.getMenus());
+	}
+	
+	@GetMapping("addKeyandValue/{key}/{value}")
+	public Mono<GenericResponse<Object>> addCategory(@PathVariable("key") String key,@PathVariable("value") String value){
+		return hotelopservice.addCategory(key, value);
+	}
+	
+	@GetMapping("getAllCategories/{key}")
+	public Mono<Object> getAllCategories(@PathVariable("key") String key){
+		return consrepo.findByKey(key)
+				.switchIfEmpty(Mono.just(new Constants()))
+				.map(data -> data.getValue());
 	}
 }

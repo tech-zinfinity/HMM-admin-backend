@@ -29,11 +29,11 @@ public class EmailService {
 			SimpleMailMessage message = new SimpleMailMessage();
 			try {
 				JavaMailSenderImpl sender = new JavaMailSenderImpl();
-				sender.setHost("cp-wc09.lon01.ds.network");
+				sender.setHost("smtp-relay.gmail.com");
 				sender.setPort(587);
-				sender.setUsername("info@earthenflavours.com");
-				sender.setPassword("info@987");
-				message.setFrom(MailContants.mail_from_earthenflavours_info);
+				sender.setUsername("darshan.r@gmail.com");
+				sender.setPassword("Shamika@1112");
+				message.setFrom(MailContants.mail_from_darshan_redkar_zinfinity_in);
 				
 				message.setTo(to);
 				message.setSubject(subject);
@@ -51,15 +51,15 @@ public class EmailService {
 	MailAuthenticationException, MailPreparationException, MailSendException{
 		return Mono.fromCallable(() ->{
 			JavaMailSenderImpl sender = new JavaMailSenderImpl();
-			sender.setHost("cp-wc09.lon01.ds.network");
+			sender.setHost("smtp-relay.gmail.com");
 			sender.setPort(587);
-			sender.setUsername("info@earthenflavours.com");
-			sender.setPassword("info@987");
+			sender.setUsername("darshan.r@zinfinity.in");
+			sender.setPassword("Shamika@1112");
 			MimeMessage message = sender.createMimeMessage();
 
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
 			try {
-				helper.setFrom(MailContants.mail_from_earthenflavours_info);
+				helper.setFrom(MailContants.mail_from_darshan_redkar_zinfinity_in);
 				helper.setTo(to);
 				helper.setSubject(subject);
 				helper.setText("<html> <head> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <style> * "
@@ -98,11 +98,11 @@ public class EmailService {
 			SimpleMailMessage message = new SimpleMailMessage();
 			try {
 				JavaMailSenderImpl sender = new JavaMailSenderImpl();
-				sender.setHost("cp-wc09.lon01.ds.network");
+				sender.setHost("smtp-relay.gmail.com");
 				sender.setPort(587);
-				sender.setUsername("info@earthenflavours.com");
-				sender.setPassword("info@987");
-				message.setFrom(MailContants.mail_from_earthenflavours_info);
+				sender.setUsername("darshan.r@gmail.com");
+				sender.setPassword("Shamika@1112");
+				message.setFrom(MailContants.mail_from_darshan_redkar_zinfinity_in);
 				message.setTo(to);
 				message.setSubject(subject);
 				message.setText(text);

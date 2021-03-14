@@ -1,5 +1,6 @@
 package app.services;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import app.constants.ResponseCode;
 import app.entities.Hotel;
 import app.entities.User;
 import app.enums.HotelStatus;
+import app.enums.Role;
 import app.http.response.GenericResponse;
 import app.repositories.HotelRepository;
 import app.repositories.UserRepository;
@@ -32,8 +34,7 @@ public class HotelService {
 				user.setActive(false);
 				user.setVerified(true);
 				user.setPassword("null");
-				String[] v = {"HOTEL"};
-				user.setRoles(v);
+				user.setRoles(Arrays.asList(Role.HOTEL));
 				if(user.getEmail() != null && !(user.getEmail().isBlank())) {
 					userrepo.insert(user)
 					.subscribe(usr ->{
@@ -162,5 +163,6 @@ public class HotelService {
 			});
 		});
 	}
+	
 	
 }

@@ -1,18 +1,18 @@
 package app.entities;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data @AllArgsConstructor @NoArgsConstructor @Builder
-public class Menu {
+@Document(collection = "Transaction")
+public class Transaction {
 
+	@Id
 	private String id;
-	private String title;
-	private String description;
-	private double cost;
-	private String[] picsUrls;
-	private boolean veg;
-	private String category;
+	
 }

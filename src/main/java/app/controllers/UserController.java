@@ -1,5 +1,6 @@
 package app.controllers;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 import app.constants.ResponseCode;
 import app.entities.User;
 import app.enums.HotelStatus;
+import app.enums.Role;
+import app.http.response.AuthResponse;
 import app.http.response.GenericResponse;
 import app.repositories.HotelRepository;
 import app.repositories.UserRepository;
+import app.security.JWTUtil;
 import app.utilities.EmailService;
 import app.utilities.OTPUtility;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -30,6 +35,7 @@ public class UserController {
 	@Autowired private UserRepository userrepo;
 	@Autowired private EmailService emailService;
 	@Autowired private HotelRepository hotelrepo;
+	@Autowired private JWTUtil jwtUtil;
 	
 	@GetMapping("sendotp/{emailid}")
 	public Mono<GenericResponse<Object>> sendOtp(@PathVariable("emailid") String emailid){
@@ -77,7 +83,7 @@ public class UserController {
 				userrepo.findByEmail(user.getEmail())
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					String[] roles = {"ADMIN"};
-					user.setRoles(roles);
+					user.setRoles(Arrays.asList(Role.ADMIN));
 					user.setActive(true);
 					userrepo.insert(user).subscribe(data ->{
 						sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("User added successfully").build());
@@ -111,7 +117,12 @@ public class UserController {
 				.subscribe(data ->{
 					if(data.isActive()) {
 						if(data.getPassword().equals(password)) {
-							sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("Login successfull").build());
+							data.setPassword(null);
+							sink.success(GenericResponse.builder().body(AuthResponse.builder()
+									.user(data)
+									.roles(data.getRoles())
+									.token(jwtUtil.generateToken(data))
+									.build()).code(ResponseCode.OK.name()).message("Login successfull").build());
 						}else {
 							sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("Login not successfull").build());
 
@@ -162,5 +173,10 @@ public class UserController {
 
 			});
 		});
+	}
+	
+	@GetMapping("getAll")
+	public Flux<User> getAllUsers() {
+		return this.userrepo.findAll();
 	}
 }
