@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import app.constants.ResponseCode;
-import app.dboperations.DBOperations;
+
 import app.entities.Hotel;
 import app.enums.HotelStatus;
 import app.http.response.GenericResponse;
@@ -32,7 +32,7 @@ public class HotelController {
 	@Autowired private HotelRepository hotelrepo;
 	@Autowired private EmailService emailService;
 	@Autowired private UserRepository userrepo;
-	@Autowired private DBOperations dbops;
+    @Autowired private app.dboperationss.DBOperations dbops;
 	
 
 	@PostMapping("add")
@@ -63,7 +63,7 @@ public class HotelController {
 												sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("Hotel Approved Successfully, But unable to send mail").build());
 											}
 										}, err->{
-											sink.success(GenericResponse.builder().body(data).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+											sink. success(GenericResponse.builder().body(data).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
 										});
 							}, err ->{
 								sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
