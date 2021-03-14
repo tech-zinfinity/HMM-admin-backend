@@ -32,7 +32,7 @@ public class HotelController {
 	@Autowired private HotelRepository hotelrepo;
 	@Autowired private EmailService emailService;
 	@Autowired private UserRepository userrepo;
-    @Autowired private app.dboperationss.DBOperations dbops;
+    @Autowired private app.dboperations.DBOperations dbops;
 	
 
 	@PostMapping("add")

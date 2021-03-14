@@ -30,13 +30,10 @@ import reactor.core.publisher.Mono;
 @RequestMapping("ops")
 public class HotelOperationalController {
 
-	@Autowired private HotelService hotelService;
+	
 	@Autowired private HotelRepository hotelrepo;
-	@Autowired private EmailService emailService;
-	@Autowired private UserRepository userrepo;
-	@Autowired private DBOperations dbops;
 	@Autowired private TableService tableserice;
-	@Autowired private IDGeneratorWithTimeStamp idgen;
+	
 	
 	@GetMapping("registerTable/{hotelId}/{tableNo}/{tableId}")
 	public Mono<ResponseEntity<Object>> registerTable(@PathVariable("hotelId") String hotelId, @PathVariable("tableNo") String tableNo
