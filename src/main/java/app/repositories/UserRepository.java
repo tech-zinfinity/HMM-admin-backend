@@ -13,4 +13,7 @@ public interface UserRepository extends ReactiveMongoRepository<User, String>{
 	
 	@Query("{'email':?0}")
 	public Mono<User> findByEmail(String email);
+	
+	@Query("{'phoneNo':?0}")
+	public Mono<User> findByPhoneNo(String phoneNo);
 }
