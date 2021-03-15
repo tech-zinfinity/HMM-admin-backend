@@ -1,6 +1,6 @@
 package app.enums;
 
 public enum Role {
-	USER, ADMIN, HOTEL, CONSUMER, CHEF
+	ROLE_USER, ROLE_ADMIN, ROLE_HOTEL, ROLE_CONSUMER, ROLE_CHEF
 }
 

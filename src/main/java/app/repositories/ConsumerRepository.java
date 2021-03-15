@@ -4,7 +4,6 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import app.entities.Consumer;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ConsumerRepository extends ReactiveMongoRepository<Consumer, String>{

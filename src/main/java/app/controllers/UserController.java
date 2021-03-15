@@ -83,7 +83,7 @@ public class UserController {
 				userrepo.findByEmail(user.getEmail())
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					String[] roles = {"ADMIN"};
-					user.setRoles(Arrays.asList(Role.ADMIN));
+					user.setRoles(Arrays.asList(Role.ROLE_ADMIN));
 					user.setActive(true);
 					userrepo.insert(user).subscribe(data ->{
 						sink.success(GenericResponse.builder().body(data).code(ResponseCode.OK.name()).message("User added successfully").build());

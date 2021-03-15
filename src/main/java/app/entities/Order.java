@@ -19,12 +19,6 @@ import lombok.NoArgsConstructor;
 public class Order implements Comparator<Order> {
 
 	private String id;
-	
-	@CreatedDate
-	private LocalDateTime createdOn;
-	@LastModifiedDate
-	private LocalDateTime updatedOn;
-	
 	private String custId;
 	private double totalPrice;
 	private String status;
@@ -32,6 +26,11 @@ public class Order implements Comparator<Order> {
 	private String stage;
 	private Transaction transaction;
 	private List<SellUnit> items;
+	
+	@CreatedDate
+	private LocalDateTime createdOn;
+	@LastModifiedDate
+	private LocalDateTime updatedOn;
 	
 	@Override
 	public int compare(Order o1, Order o2) {

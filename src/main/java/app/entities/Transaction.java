@@ -1,8 +1,13 @@
 package app.entities;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import app.constants.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +19,24 @@ public class Transaction {
 
 	@Id
 	private String id;
+	private String rOrderId;
+	
+	private String razorPayKey;
+	private String razorPayPaymentId;
+	private String razorPaySignature;
+	private double amt;
+	
+	private TransactionType type;
+	private String paidBy; //fee.userId
+	private String paidTo; //system
+	private String currency;//fee.currency
+	
+	@Builder.Default
+	private boolean success = false;
+	
+	@CreatedDate
+	private LocalDateTime createdOn;
+	@LastModifiedDate
+	private LocalDateTime updatedOn;
 	
 }
