@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import app.constants.ResponseCode;
-
+import app.dboperations.DBOperations;
 import app.entities.Hotel;
 import app.enums.HotelStatus;
 import app.http.response.GenericResponse;
@@ -32,7 +32,7 @@ public class HotelController {
 	@Autowired private HotelRepository hotelrepo;
 	@Autowired private EmailService emailService;
 	@Autowired private UserRepository userrepo;
-    @Autowired private app.dboperationss.DBOperations dbops;
+    @Autowired private DBOperations dbops;
 	
 
 	@PostMapping("add")
