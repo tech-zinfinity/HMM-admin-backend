@@ -34,7 +34,7 @@ public class HotelService {
 				user.setActive(false);
 				user.setVerified(true);
 				user.setPassword("null");
-				user.setRoles(Arrays.asList(Role.HOTEL));
+				user.setRoles(Arrays.asList(Role.ROLE_HOTEL));
 				if(user.getEmail() != null && !(user.getEmail().isBlank())) {
 					userrepo.insert(user)
 					.subscribe(usr ->{

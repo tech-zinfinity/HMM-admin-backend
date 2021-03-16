@@ -25,11 +25,14 @@ import app.http.request.ConsumerSignupRequest;
 import app.http.response.AuthResponse;
 import app.http.response.ConsumerSignupResponse;
 import app.http.response.GenericResponse;
+import app.models.MessagingRequest;
 import app.repositories.ConsumerRepository;
 import app.repositories.UserRepository;
 import app.security.JWTUtil;
 import app.security.PBKDF2Encoder;
 import app.services.ConsumerService;
+import app.services.MessagingService;
+import app.utilities.OTPUtility;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -42,6 +45,8 @@ public class ConsumerController {
 	 @Autowired private PBKDF2Encoder passwordEncoder;
 	 @Autowired private ConsumerRepository consumerrepo;
 	 @Autowired private JWTUtil jwtUtil;
+	 @Autowired private OTPUtility otpUtility;
+	 @Autowired private MessagingService messagingservice;
 
 
 	@PostMapping("signup")
@@ -57,7 +62,7 @@ public class ConsumerController {
 							.password(passwordEncoder.encode(consumer.getPassword()))
 							.active(true)
 							.username(consumer.getPhoneNo())
-							.roles(Arrays.asList(Role.CONSUMER))
+							.roles(Arrays.asList(Role.ROLE_CONSUMER))
 							.verified(true)
 							.build();
 					
@@ -106,7 +111,7 @@ public class ConsumerController {
 	public Mono<GenericResponse<Object>> login(@PathVariable("username") String username, @PathVariable("password") String password){
 		return Mono.create(sink->{
 			if(Objects.nonNull(username) && Objects.nonNull(password)) {
-				userrepo.findByEmail(username)
+				userrepo.findByPhoneNo(username)
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("No user account").build());
 				}))
@@ -126,7 +131,7 @@ public class ConsumerController {
 								sink.success(GenericResponse.builder().body(null).code(ResponseCode.ERR.name()).message(err.getMessage()).build());
 							});
 						}else {
-							sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("Login not successfull").build());
+							sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("Please Enter Valid Credentials").build());
 
 						}
 					}else {
@@ -204,4 +209,30 @@ public class ConsumerController {
 			});
 		});
 	}
+	
+	@GetMapping("sendotp/{phoneno}")
+	public Mono<GenericResponse<Object>> sendOtp(@PathVariable("phoneno") String phoneno){
+		return Mono.create(sink ->{
+			messagingservice.sendMessage(phoneno, "OTP for HMM is "+otpUtility.generateOTP(phoneno))
+			.subscribe(sotp -> {
+				if(sotp) {
+					sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).message("OTP Sent Succesfully").build());
+				}else {
+					sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("OTP failed").build());
+				}
+			},err -> {
+				sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage().toString()).build());
+			});
+		});
+	}
+	
+	@GetMapping("verifyotp/{phoneno}/{otp}")
+	public Mono<Boolean> verifyOtp(@PathVariable("phoneno")String phoneno, @PathVariable("otp")String otp){
+		return Mono.create(sink ->{
+			System.out.println(phoneno);
+			System.out.println(otp);
+			sink.success(otpUtility.verifyOTP(phoneno, Integer.valueOf(otp)));
+		});
+	}
+	
 }

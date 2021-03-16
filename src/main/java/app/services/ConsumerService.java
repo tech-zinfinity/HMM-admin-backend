@@ -26,7 +26,7 @@ public class ConsumerService {
 				sink.success();
 			}))
 			.subscribe(data ->{
-				if(data.getRoles().contains(Role.CONSUMER)) {
+				if(data.getRoles().contains(Role.ROLE_CONSUMER)) {
 					this.consumerrepo.findByUserId(data.getId())
 					.switchIfEmpty(Mono.fromRunnable( ()->{
 						sink.error(new EntityNotFoundException());
@@ -52,7 +52,7 @@ public class ConsumerService {
 				sink.success();
 			}))
 			.subscribe(data ->{
-				if(data.getRoles().contains(Role.CONSUMER)) {
+				if(data.getRoles().contains(Role.ROLE_CONSUMER)) {
 					this.consumerrepo.findByUserId(data.getId())
 					.switchIfEmpty(Mono.fromRunnable( ()->{
 						sink.error(new EntityNotFoundException());

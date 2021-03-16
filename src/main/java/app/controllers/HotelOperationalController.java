@@ -41,13 +41,12 @@ import reactor.core.publisher.Mono;
 @RequestMapping("ops")
 public class HotelOperationalController {
 
+	
 	@Autowired private HotelService hotelService;
 	@Autowired private HotelOperationalService hotelopservice;
 	@Autowired private HotelRepository hotelrepo;
-	@Autowired private EmailService emailService;
-	@Autowired private UserRepository userrepo;
-	@Autowired private DBOperations dbops;
 	@Autowired private TableService tableserice;
+	
 	@Autowired private IDGeneratorWithTimeStamp idgen;
 	@Autowired private ConstantsRepository consrepo;
 	

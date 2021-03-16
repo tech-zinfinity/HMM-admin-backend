@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OTPUtility {
 
-	private static final Integer EXPIRE_MINS = 5;
+	 private static final Integer EXPIRE_MINS = 5;
 	 private LoadingCache<String, Integer> otpCache;
 	 
 	 public OTPUtility(){
@@ -42,7 +42,6 @@ public class OTPUtility {
 	 }
 	 
 	 public int generateOTP(String key){
-		System.out.println("sending otp");
 		Random random = new Random();
 		int otp = 100000 + random.nextInt(900000);
 		otpCache.put(key, otp);
