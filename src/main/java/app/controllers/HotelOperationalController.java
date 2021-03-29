@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
-
+import app.constants.ResponseCode;
 import app.dboperations.DBOperations;
 import app.entities.Constants;
 import app.entities.Hotel;
@@ -53,7 +52,6 @@ public class HotelOperationalController {
 	@GetMapping("registerTable/{hotelId}/{tableNo}/{tableId}")
 	public Mono<ResponseEntity<Object>> registerTable(@PathVariable("hotelId") String hotelId, @PathVariable("tableNo") String tableNo
 			, @PathVariable("tableId") String tableId) {
-		System.out.println("coming inside");
 		return Mono.create(sink ->{
 			tableserice.registerTableForHotel(hotelId, tableNo, tableId).subscribe(data ->{
 				sink.success(
@@ -122,5 +120,45 @@ public class HotelOperationalController {
 		return consrepo.findByKey(key)
 				.switchIfEmpty(Mono.just(new Constants()))
 				.map(data -> data.getValue());
+	}
+	
+	@GetMapping("/deleteTable/{tableId}/{hotelId}")
+	public Mono<Object> deleteTable(@PathVariable("tableId") String tableId, @PathVariable("hotelId") String hotelId){
+		return Mono.create(sink ->{
+			hotelrepo.findById(hotelId).switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("No Hotel available").build());
+			})).subscribe(d->{
+				var list = d.getTables();
+				list.removeIf(e -> e.getTableId().equals(tableId));
+				d.setTables(list);
+				hotelrepo.save(d).subscribe(s ->{
+					sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).message("Table deleted successfully").body(s).build());
+				}, err->{
+					sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+				});
+			}, err->{
+				sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+			});
+		});
+	}
+	
+	@GetMapping("/deleteMenu/{menuId}/{hotelId}")
+	public Mono<Object> deleteMenu(@PathVariable("menuId") String menuId, @PathVariable("hotelId") String hotelId){
+		return Mono.create(sink ->{
+			hotelrepo.findById(hotelId).switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("No Hotel available").build());
+			})).subscribe(d->{
+				var list = d.getMenus();
+				list.removeIf(e -> e.getId().equals(menuId));
+				d.setMenus(list);
+				hotelrepo.save(d).subscribe(s ->{
+					sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).message("Menu deleted successfully").body(s).build());
+				}, err->{
+					sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+				});
+			}, err->{
+				sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+			});
+		});
 	}
 }

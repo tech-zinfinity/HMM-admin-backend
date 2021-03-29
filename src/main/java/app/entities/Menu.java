@@ -15,4 +15,6 @@ public class Menu {
 	private String[] picsUrls;
 	private boolean veg;
 	private String category;
+	private boolean available;
+	private boolean active;
 }

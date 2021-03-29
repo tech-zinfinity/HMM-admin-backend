@@ -29,7 +29,6 @@ public class HotelOperationalService {
 				sink.success(GenericResponse.builder().code("WARN").message("Unable to Find Hotel").body(null).build());
 			}))
 			.subscribe(hotel -> {
-				System.out.println(hotel);
 				String menuid = idgen.generateID();
 				menu.setId(menuid);
 				if(!Objects.nonNull(hotel.getMenus())) {
