@@ -38,7 +38,7 @@ public class HotelService {
 				if(user.getEmail() != null && !(user.getEmail().isBlank())) {
 					userrepo.insert(user)
 					.subscribe(usr ->{
-						hotel.setStatus(HotelStatus.REQUESTED);
+						hotel.setStatus(HotelStatus.REQUESTED);      
 						hotel.setActive(false);
 						hotel.setUser(usr);
 						
