@@ -45,8 +45,7 @@ public class HotelService {
 						if(Objects.nonNull(hotel.getAddress())) {
 							if(Objects.nonNull(hotel.getContactinfo())) {
 								hotelrepo.insert(hotel).subscribe(hot ->{
-									String[] r = {usr.getEmail()};
-									emailService.sendSimpleMsg(r, "Confirmation Mail from HMM", "Your request is under consideration")
+									emailService.sendSimpleMsg(Arrays.asList(user.getEmail()), "Confirmation Mail from HMM", "Your request is under consideration")
 									.subscribe(sent ->{
 										sink.success(GenericResponse.builder().body(hot).code("OK").message("Hotel Registered Successfully").build());
 									}, e->{

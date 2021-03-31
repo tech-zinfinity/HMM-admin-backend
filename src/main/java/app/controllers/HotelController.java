@@ -1,5 +1,10 @@
 package app.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import app.constants.ResponseCode;
 import app.dboperations.DBOperations;
 import app.entities.Hotel;
+import app.entities.Menu;
 import app.enums.HotelStatus;
+import app.exceptions.ProcessTerminatedException;
 import app.http.response.GenericResponse;
+import app.models.CategoryMenuModel;
 import app.models.HotelUserMapping;
 import app.repositories.HotelRepository;
 import app.repositories.UserRepository;
@@ -237,6 +245,34 @@ public class HotelController {
 			.subscribe(hotel -> {
 				
 				sink.success(GenericResponse.builder().code("OK").body(hotel).message("HOtel Retrieved Successfully").build());
+			}, err -> {
+				sink.error(err);
+			});
+		});
+	}
+	
+	@GetMapping("getCategoryMenus/{id}")
+	public Flux<CategoryMenuModel> getCategoryMenus(@PathVariable("id") String id) {
+		System.out.println("something");
+		return Flux.create(sink -> {
+			hotelrepo.findById(id)
+			.switchIfEmpty(Mono.fromRunnable(() -> {
+				sink.error(new ProcessTerminatedException("No hotel exist"));
+			}))
+			.subscribe(hotel -> {
+				Set<String> categories = hotel.getMenus().stream().map(d -> d.getCategory()).collect(Collectors.toSet());
+				Flux.fromIterable(categories).doOnComplete(() ->{
+					sink.complete();
+				}).subscribe(category ->{
+					CategoryMenuModel m = CategoryMenuModel.builder()
+							.menus(hotel.getMenus().stream().filter(menu -> menu.getCategory().equals(category)).collect(Collectors.toList()))
+							.category(category)
+							.build();
+					sink.next(m);
+				}, err->{
+					sink.error(err);
+				});
+				
 			}, err -> {
 				sink.error(err);
 			});

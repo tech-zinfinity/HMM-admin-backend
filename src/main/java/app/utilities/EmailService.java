@@ -1,5 +1,7 @@
 package app.utilities;
 
+import java.util.List;
+
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,7 @@ public class EmailService {
 	
 	@Autowired private JavaMailSender emailsender;
 	
-	public Mono<Boolean> sendSimpleMsg(String[] to,String subject,String text) throws MailParseException, 
+	public Mono<Boolean> sendSimpleMsg(List<String> to,String subject,String text) throws MailParseException, 
 	MailAuthenticationException, MailPreparationException, MailSendException{
 		return Mono.fromCallable(() ->{
 			SimpleMailMessage message = new SimpleMailMessage();
@@ -35,7 +37,8 @@ public class EmailService {
 				sender.setPassword("Shamika@1112");
 				message.setFrom(MailContants.mail_from_darshan_redkar_zinfinity_in);
 				
-				message.setTo(to);
+				String[] ss = new String [to.size()]; 
+				message.setTo(to.toArray(ss));
 				message.setSubject(subject);
 				message.setText(text);
 				sender.send(message);

@@ -57,7 +57,33 @@ public class MessagingService {
 	
 	public Mono<Boolean> sendMessage(List<String> numbers, String message){
 		return Mono.create(sink ->{
+			var body = MessagingRequest.builder()
+					.numbers(numbers)
+					.message(message)
+					.build();
+			WebClient webClient = WebClient.create(apihost);
 			
+			Flux<String> response = webClient.post()
+			.uri(sendmessageendpoint)
+			.body(Mono.just(body), MessagingRequest.class)
+			.retrieve()
+			.bodyToFlux(String.class);
+			
+			response
+			.switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.success(false);
+			}))
+			.subscribe(data->{
+				if (Objects.nonNull(data)) {
+					log.info("sendMessage{}", data);
+					sink.success(true);
+				}else {
+					sink.success(false);
+				}
+			}, err->{
+				log.info("sendMessage{}", err.getMessage().toString());
+				sink.success(false);
+			});
 		});
 	}
 }
