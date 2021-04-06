@@ -15,4 +15,6 @@ public class ProcessTerminatedException extends Exception{
 	private static final long serialVersionUID = 1534957828729007624L;
 	
 	private String message;
+	
+	
 }

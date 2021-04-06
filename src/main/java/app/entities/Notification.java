@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import app.enums.NotificationModeEnum;
@@ -20,6 +21,8 @@ public class Notification {
 	@Id
 	private String id;
 	private String message;
+	
+	@LastModifiedDate
 	private LocalDateTime createdOn;
 	private String redirectionURL;
 	private List<NotificationModeEnum> modes;

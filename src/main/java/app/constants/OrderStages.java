@@ -1,5 +1,5 @@
 package app.constants;
 
 public enum OrderStages {
-	PLACED,COOKING,READY,SERVED,COMPLETED
+	DRAFTED,PLACED,COOKING,READY,SERVED,COMPLETED
 }

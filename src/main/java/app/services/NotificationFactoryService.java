@@ -1,9 +1,7 @@
 package app.services;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,7 @@ public class NotificationFactoryService {
 	public Mono<Notification> sendNotification(Notification notification){
 		return Mono.create(sink ->{
 			this.verifyNotification(notification).subscribe(not ->{
-				notificationrepo.save(not)
+				Mono.just(notification)
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					sink.error(new ProcessTerminatedException("Database issue"));
 				})).subscribe(no ->{
@@ -43,43 +41,47 @@ public class NotificationFactoryService {
 					List<String> numbers = new ArrayList<String>();
 					userrepo.findAllById(notification.getUserIds())
 					.switchIfEmpty(Mono.fromRunnable( ()->{
-						notificationrepo.delete(no).subscribe(r ->{
-							sink.error(new ProcessTerminatedException("No users selected"));
-						}, err->{
-							sink.error(err);
-						});
+						sink.error(new ProcessTerminatedException("No users selected"));
 					}))
 					.doOnComplete(() ->{
-						Mono<Boolean> message  = Mono.empty();
-						Mono<Boolean> email = Mono.empty();
+						boolean message  = false;
+						boolean email = false;
 						if(notification.getModes().contains(NotificationModeEnum.MESSAGE)) {
-							message = this.sendOnMessage(numbers, notification.getMessage());
+							message = this.sendOnMessage(numbers, no.getMessage()).block();
 						}
 						if(notification.getModes().contains(NotificationModeEnum.EMAIL)) {
-							email = this.sendOnEmail(emails, notification.getMessage(), "");
+							email = this.sendOnEmail(emails, notification.getMessage(), "").block();
 						}
-						message.zipWith(email).subscribe(s ->{
-							Map<NotificationModeEnum, Boolean> m = new HashMap<NotificationModeEnum, Boolean>();
-							m.put(NotificationModeEnum.MESSAGE, s.getT1());
-							m.put(NotificationModeEnum.EMAIL, s.getT2());
-							no.setStatusMap(m);
+						
+						Map<NotificationModeEnum, Boolean> m = new HashMap<NotificationModeEnum, Boolean>();
+						m.put(NotificationModeEnum.MESSAGE, message);
+						m.put(NotificationModeEnum.EMAIL, email);
+						no.setStatusMap(m);
+						if(notification.getModes().contains(NotificationModeEnum.NATIVE)) {
+							no.setCreatedOn(LocalDateTime.now());
 							notificationrepo.save(no).subscribe(da ->{
 								sink.success(da);
 							}, er->{
 								sink.error(er);
 							});
-						}, err->{
-							
-						});
+						}else {
+							sink.success();
+						}
+
 					})
 					.subscribe(user ->{
-						numbers.add(user.getPhoneNo());
-						emails.add(user.getEmail());
+						if(Objects.nonNull(user.getPhoneNo())) {
+							System.out.println(user.getPhoneNo());
+							numbers.add(user.getPhoneNo());
+						}if(Objects.nonNull(user.getEmail())) {
+							emails.add(user.getEmail());
+						}
+						
 					}, err->{
 						sink.error(err);
 					});
 				}, err->{
-					
+					sink.error(err);
 				});
 			}, err->{
 				sink.error(err);
@@ -150,15 +152,35 @@ public class NotificationFactoryService {
 	}
 	
 	public Flux<Notification> getNotificationByUserId(String userId){
-		return notificationrepo.findByUserIds(userId);
+		return notificationrepo.findByUserIds(userId).sort((o1,o2)->o2.getCreatedOn().compareTo(o1.getCreatedOn()));
 	}
 	
-	public Mono<Object> deleteNotification(String id, String userId) {
+	public Mono<Object> removeNotificationForUser(String id, String userId) {
 		return Mono.create(sink ->{
-			notificationrepo.findById(id).switchIfEmpty(Mono.fromRunnable( ()->{
-				sink.error(new ProcessTerminatedException(""));
+			notificationrepo.findById(id)
+			.switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.error(new ProcessTerminatedException("No Notification Available"));
 			})).subscribe(data ->{
-				
+				System.out.println(data);
+				var users  = data.getUserIds();
+				if(users.size() == 1) {
+					System.out.println(users);
+					notificationrepo.delete(data)
+					.doOnSuccess(onSuccess->{
+						System.out.println("on success");
+						sink.success(data);
+					}).doOnError(onError->{
+						sink.error(onError);
+					}).subscribe();
+				}else {
+					users.remove(userId);
+					data.setUserIds(users);
+					notificationrepo.save(data).subscribe(d ->{
+						sink.success(data);
+					}, err->{
+						sink.error(err);
+					});
+				}
 			}, err->{
 				
 			});

@@ -253,7 +253,6 @@ public class HotelController {
 	
 	@GetMapping("getCategoryMenus/{id}")
 	public Flux<CategoryMenuModel> getCategoryMenus(@PathVariable("id") String id) {
-		System.out.println("something");
 		return Flux.create(sink -> {
 			hotelrepo.findById(id)
 			.switchIfEmpty(Mono.fromRunnable(() -> {

@@ -8,6 +8,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import app.constants.OrderStages;
+import app.constants.OrderStatus;
 import app.models.SellUnit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,9 +23,9 @@ public class Order implements Comparator<Order> {
 	private String id;
 	private String custId;
 	private double totalPrice;
-	private String status;
+	private OrderStatus status;
 	private boolean active;
-	private String stage;
+	private OrderStages stage;
 	private Transaction transaction;
 	private List<SellUnit> items;
 	

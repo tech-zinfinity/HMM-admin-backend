@@ -27,9 +27,10 @@ public class Transaction {
 	private double amt;
 	
 	private TransactionType type;
-	private String paidBy; //fee.userId
-	private String paidTo; //system
-	private String currency;//fee.currency
+	private String paidByPhone; 
+	private String paidByEmail; 
+	private String paidTo; 
+	private String currency;
 	
 	@Builder.Default
 	private boolean success = false;
