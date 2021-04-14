@@ -35,4 +35,6 @@ public class Hotel {
 	
 	private List<Menu> menus;
 	private List<Table> tables;
+	private String gstNo;
+	private String panNo;
 }
