@@ -2,6 +2,7 @@ package app.controllers;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -153,6 +154,24 @@ public class HotelOperationalController {
 				d.setMenus(list);
 				hotelrepo.save(d).subscribe(s ->{
 					sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).message("Menu deleted successfully").body(s).build());
+				}, err->{
+					sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+				});
+			}, err->{
+				sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+			});
+		});
+	}
+	
+	@PostMapping("updateMenu/{hotelId}")
+	public Mono<Object> updateMenu(@RequestBody Menu menu, @PathVariable("hotelId") String hotelId){
+		return Mono.create(sink ->{
+			hotelrepo.findById(hotelId).switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("No Hotel available").build());
+			})).subscribe(d->{
+				d.setMenus(d.getMenus().stream().map(s -> s.getId().equals(menu.getId())?menu:s).collect(Collectors.toList()));
+				hotelrepo.save(d).subscribe(s ->{
+					sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).message("Menu Updated successfully").body(s).build());
 				}, err->{
 					sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
 				});

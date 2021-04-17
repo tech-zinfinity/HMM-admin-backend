@@ -278,4 +278,26 @@ public class HotelController {
 		});
 	}
 	
+	@GetMapping("updateGSTAndPan/{gst}/{pan}/{id}")
+	public Mono<GenericResponse<Object>> updateGSTandPANno(@PathVariable("gst") String gst, @PathVariable("pan") String pan, @PathVariable("id") String id) {
+		return Mono.create(sink ->{
+			hotelrepo.findById(id).switchIfEmpty(Mono.fromRunnable( ()->{
+				sink.success(GenericResponse.builder().code(ResponseCode.WARN.name()).message("No Hotel available with given id").build());
+			}))
+			.subscribe(hotel ->{
+				if(hotel.getStatus().equals(HotelStatus.VERIFIED) || hotel.getStatus().equals(HotelStatus.REQUESTEDFORPUBLISH)
+						|| hotel.getStatus().equals(HotelStatus.PUBLISHED)) {
+					hotel.setGstNo(gst);
+					hotel.setPanNo(pan);
+					hotelrepo.save(hotel).subscribe(data ->{
+						sink.success(GenericResponse.builder().code(ResponseCode.OK.name()).body(data).message("Hotel Updated Successfully").build());
+					}, err->{
+						sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+					});
+				}
+			},err->{
+				sink.success(GenericResponse.builder().code(ResponseCode.ERR.name()).message(err.getMessage()).build());
+			});
+		});
+	}
 }
