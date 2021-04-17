@@ -24,6 +24,10 @@ public class Transaction {
 	private String razorPayKey;
 	private String razorPayPaymentId;
 	private String razorPaySignature;
+	private String razorPayMethod;
+	private String razorPayCardId;
+	private String razorpayPayment;
+	
 	private double amt;
 	
 	private TransactionType type;
@@ -39,5 +43,7 @@ public class Transaction {
 	private LocalDateTime createdOn;
 	@LastModifiedDate
 	private LocalDateTime updatedOn;
+	
+	private LocalDateTime paymentSuccessOn;
 	
 }

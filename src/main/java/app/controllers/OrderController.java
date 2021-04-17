@@ -22,10 +22,12 @@ import app.entities.Order;
 import app.exceptions.ProcessTerminatedException;
 import app.http.response.GenericResponse;
 import app.repositories.ConsumerRepository;
+import app.repositories.OrderRepository;
 import app.repositories.UserRepository;
 import app.services.ConsumerService;
 import app.services.OrderService;
 import app.services.TransactionService;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -37,6 +39,7 @@ public class OrderController {
 	@Autowired private UserRepository userrepository;
 	@Autowired private TransactionService transactionservice;
 	@Autowired private OrderService orderService;
+	@Autowired private OrderRepository orderrepo;
 	
 	@PostMapping("placeOrder")
 	public Mono<GenericResponse<Object>> placeOrder(@RequestBody Order order){
@@ -77,6 +80,25 @@ public class OrderController {
 		});
 	}
 	
+	@PostMapping("captureOrder")
+	public Mono<GenericResponse<Object>> captureOrder(@RequestBody Order order){
+		return Mono.create(sink ->{
+			orderService.verifyOrderForConfirmation(order).subscribe(od ->{
+				orderService.captureOrder(od).subscribe(o ->{
+					sink.success(GenericResponse.builder().message("Order placed successfully").code(ResponseCode.OK.name()).body(o).build());
+				}, err->{
+					sink.success(GenericResponse.builder().message(err.getMessage()).code(ResponseCode.ERR.name()).build());
+
+				});
+			}, err->{
+				if(err instanceof ProcessTerminatedException) {
+					sink.success(GenericResponse.builder().message(err.getMessage()).code(ResponseCode.ERR.name()).build());
+				}
+			});
+			
+		});
+	}
+	
 	@GetMapping("preparingOrder/{id}")
 	public Mono<GenericResponse<Object>> preparingOrder(@PathVariable String id){
 		return Mono.create(sink ->{
@@ -87,7 +109,7 @@ public class OrderController {
 	@GetMapping("markOrderAsReady/{id}")
 	public Mono<GenericResponse<Object>> markOrderAsReady(@PathVariable String id){
 		return Mono.create(sink ->{
-
+			
 		});
 	}
 	
@@ -96,7 +118,12 @@ public class OrderController {
 		return Mono.create(sink ->{
 			//order status will be completed
 			//stage will be changed
-			//order active will be false
+			//order active will be false4
 		});
+	}
+	
+	@GetMapping("getByUserId/{id}")
+	public Flux<Order> getByUserId(@PathVariable("id") String id){
+		return orderrepo.findByCustId(id);
 	}
 }
