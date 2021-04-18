@@ -58,7 +58,7 @@ public class OrderController {
 				});
 				try {
 					transactionservice.startPayment(TransactionType.INBOUND, "SYSTEM", order.getTransaction().getPaidByPhone(),
-							order.getTransaction().getPaidByEmail(), "INR", prices[0])
+							order.getTransaction().getPaidByEmail(), "INR", prices[0]*100.00)
 					.subscribe(tr ->{
 						od.setTransaction(tr);
 						od.setActive(true);
