@@ -26,7 +26,7 @@ public class Transaction {
 	private String razorPaySignature;
 	private String razorPayMethod;
 	private String razorPayCardId;
-	private String razorpayPayment;
+	private Object razorpayPayment;
 	
 	private double amt;
 	

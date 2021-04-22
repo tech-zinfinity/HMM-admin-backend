@@ -93,9 +93,10 @@ public class TransactionService {
 		return Mono.create(sink ->{
 			try {
 				captureRPayment(t).subscribe(p ->{
+					System.out.println(p);
 					t.setRazorPayMethod(p.get("method"));
-					t.setRazorPayCardId(p.get("card_id"));
-					t.setRazorpayPayment(p.toString());
+//					t.setRazorPayCardId(p.get("card_id"));
+					t.setRazorpayPayment(p);
 					t.setSuccess(true);
 					t.setPaymentSuccessOn(java.time.LocalDateTime.now());
 					
@@ -107,7 +108,7 @@ public class TransactionService {
 				}, err->{
 					sink.error(err);
 				});
-			} catch (RazorpayException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -121,6 +122,7 @@ public class TransactionService {
 			JSONObject options = new JSONObject();
 			options.put("amount", t.getAmt());
 			options.put("currency", t.getCurrency());
+			System.out.println(t.getRazorPayPaymentId());
 			Payment p = rClient.Payments.capture(t.getRazorPayPaymentId(), options);
 			return p;
 		});
