@@ -1,11 +1,10 @@
 package app.controllers;
 
-import java.util.Currency;
-import java.util.List;
+
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,23 +21,18 @@ import app.constants.TransactionType;
 import app.entities.Order;
 import app.exceptions.ProcessTerminatedException;
 import app.http.response.GenericResponse;
-import app.repositories.ConsumerRepository;
 import app.repositories.OrderRepository;
 import app.repositories.TransactionRepository;
-import app.repositories.UserRepository;
-import app.services.ConsumerService;
 import app.services.OrderService;
 import app.services.TransactionService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@CrossOrigin(allowedHeaders="*")
 @RestController
 @RequestMapping("order")
 public class OrderController {
 
-	@Autowired private ConsumerService consumerservice;
-	@Autowired private ConsumerRepository consumerrepository;
-	@Autowired private UserRepository userrepository;
 	@Autowired private TransactionService transactionservice;
 	@Autowired private OrderService orderService;
 	@Autowired private TransactionRepository transactionrepo;
@@ -212,6 +206,7 @@ public class OrderController {
 	
 	@GetMapping("getByUserId/{id}")
 	public Flux<Order> getByUserId(@PathVariable("id") String id){
+		System.out.println(id);
 		return orderrepo.findByCustId(id);
 	}
 }
