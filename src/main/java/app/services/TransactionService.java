@@ -96,10 +96,9 @@ public class TransactionService {
 					System.out.println(p);
 					t.setRazorPayMethod(p.get("method"));
 //					t.setRazorPayCardId(p.get("card_id"));
-					t.setRazorpayPayment(p);
+//					t.setRazorpayPayment(p.toJson());
 					t.setSuccess(true);
 					t.setPaymentSuccessOn(java.time.LocalDateTime.now());
-					
 					trsansactionRepo.save(t).subscribe(tr ->{
 						sink.success(t);
 					}, err->{

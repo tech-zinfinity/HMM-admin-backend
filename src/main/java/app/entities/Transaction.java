@@ -2,10 +2,14 @@ package app.entities;
 
 import java.time.LocalDateTime;
 
+import org.json.JSONObject;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.mongodb.lang.Nullable;
 
 import app.constants.TransactionType;
 import lombok.AllArgsConstructor;
@@ -26,7 +30,9 @@ public class Transaction {
 	private String razorPaySignature;
 	private String razorPayMethod;
 	private String razorPayCardId;
-	private Object razorpayPayment;
+//	@JsonIgnoreProperties
+//	@Nullable
+//	private JSONObject razorpayPayment;
 	
 	private double amt;
 	
