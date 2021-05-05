@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.threeten.bp.LocalDateTime;
 
 import com.razorpay.Order;
 import com.razorpay.Payment;
@@ -88,11 +89,39 @@ public class TransactionService {
 		
 	}
 	
+	public Mono<Transaction> capturePayment(Transaction t) {
+		return Mono.create(sink ->{
+			try {
+				captureRPayment(t).subscribe(p ->{
+					System.out.println(p);
+					t.setRazorPayMethod(p.get("method"));
+//					t.setRazorPayCardId(p.get("card_id"));
+//					t.setRazorpayPayment(p.toJson());
+					t.setSuccess(true);
+					t.setPaymentSuccessOn(java.time.LocalDateTime.now());
+					trsansactionRepo.save(t).subscribe(tr ->{
+						sink.success(t);
+					}, err->{
+						sink.error(err);
+					});
+				}, err->{
+					sink.error(err);
+				});
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			
+		});
+	}
+	
 	private Mono<Payment> captureRPayment(Transaction t) throws RazorpayException {
 		return Mono.fromCallable(() ->{
 			JSONObject options = new JSONObject();
 			options.put("amount", t.getAmt());
 			options.put("currency", t.getCurrency());
+			System.out.println(t.getRazorPayPaymentId());
 			Payment p = rClient.Payments.capture(t.getRazorPayPaymentId(), options);
 			return p;
 		});
