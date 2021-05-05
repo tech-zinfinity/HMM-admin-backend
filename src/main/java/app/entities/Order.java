@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import app.constants.OrderStages;
 import app.constants.OrderStatus;
+import app.models.HotelOrderModel;
 import app.models.SellUnit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,9 @@ public class Order implements Comparator<Order> {
 	private OrderStages stage;
 	private Transaction transaction;
 	private List<SellUnit> items;
+	
+	//hotel relates info
+	private HotelOrderModel hotel;
 	
 	@CreatedDate
 	private LocalDateTime createdOn;
