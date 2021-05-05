@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.dozermapper.core.DozerBeanMapper;
+import com.github.dozermapper.core.DozerBeanMapperBuilder;
+import com.github.dozermapper.core.Mapper;
 import com.razorpay.RazorpayException;
 
 import app.constants.OrderStages;
@@ -21,6 +24,8 @@ import app.constants.TransactionType;
 import app.entities.Order;
 import app.exceptions.ProcessTerminatedException;
 import app.http.response.GenericResponse;
+import app.models.HotelOrderModel;
+import app.repositories.HotelRepository;
 import app.repositories.OrderRepository;
 import app.repositories.TransactionRepository;
 import app.services.OrderService;
@@ -37,37 +42,45 @@ public class OrderController {
 	@Autowired private OrderService orderService;
 	@Autowired private TransactionRepository transactionrepo;
 	@Autowired private OrderRepository orderrepo;
+	@Autowired private HotelRepository hotelrepo;
+	private Mapper mapper = DozerBeanMapperBuilder.buildDefault();
 	
 	@PostMapping("placeOrder")
 	public Mono<GenericResponse<Object>> placeOrder(@RequestBody Order order){
 		return Mono.create(sink ->{
-			//menu list and quantity is available 
-			//consumer id is must
-			//calculate total price
-			//create transaction with r_order id 
-			//put transaction in order
-			//fill data in order save order with stage placed and status notpaid
-			//return order
 			orderService.verifyOrder(order).subscribe(od ->{
 				double[] prices =  {0.0};
 				od.getItems().forEach(s -> {
 					prices[0] = prices[0]+s.getPrice();
 				});
-				try {
-					transactionservice.startPayment(TransactionType.INBOUND, "SYSTEM", order.getTransaction().getPaidByPhone(),
-							order.getTransaction().getPaidByEmail(), "INR", prices[0]*100.00)
-					.subscribe(tr ->{
-						od.setTransaction(tr);
-						od.setActive(true);
-						od.setStage(OrderStages.DRAFTED);
-						od.setStatus(OrderStatus.DRAFT);
-						od.setTotalPrice(prices[0]);
-						sink.success(GenericResponse.builder().body(od).message("Order created successfully").code(ResponseCode.OK.name()).build());
-					});
-				} catch (RazorpayException e) {
-					e.printStackTrace();
-					sink.success(GenericResponse.builder().message(e.getMessage()).code(ResponseCode.ERR.name()).build());
-				}
+				this.hotelrepo.findById(od.getHotelId())
+				.switchIfEmpty(Mono.fromRunnable( () ->{
+					sink.success(GenericResponse.builder().message("No Hotel associated with hotel id, please check again").code(ResponseCode.ERR.name()).build());
+				}))
+				.subscribe(hotel ->{
+					od.setHotel(mapper.map(hotel, HotelOrderModel.class));
+					od.setTableName(hotel.getTables().stream().filter(d->d.getTableId().equals(od.getTableId())).findFirst().get().getTableNo());
+					try {
+						transactionservice.startPayment(TransactionType.INBOUND, "SYSTEM", order.getTransaction().getPaidByPhone(),
+								order.getTransaction().getPaidByEmail(), "INR", prices[0]*100.00)
+						.subscribe(tr ->{
+							tr.setGst(hotel.getGstNo());
+							tr.setPan(hotel.getPanNo());
+							tr.setHotelId(hotel.getId());
+							od.setTransaction(tr);
+							od.setActive(true);
+							od.setStage(OrderStages.DRAFTED);
+							od.setStatus(OrderStatus.DRAFT);
+							od.setTotalPrice(prices[0]);
+							sink.success(GenericResponse.builder().body(od).message("Order created successfully").code(ResponseCode.OK.name()).build());
+						});
+					} catch (RazorpayException e) {
+						e.printStackTrace();
+						sink.success(GenericResponse.builder().message(e.getMessage()).code(ResponseCode.ERR.name()).build());
+					}
+				},err->{
+					sink.success(GenericResponse.builder().message(err.getMessage()).code(ResponseCode.ERR.name()).build());
+				});
 			}, err->{
 				if(err instanceof ProcessTerminatedException) {
 					sink.success(GenericResponse.builder().message(err.getMessage()).code(ResponseCode.ERR.name()).build());

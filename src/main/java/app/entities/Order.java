@@ -30,6 +30,10 @@ public class Order implements Comparator<Order> {
 	private Transaction transaction;
 	private List<SellUnit> items;
 	
+	private String hotelId;
+	private String tableId;
+	private String tableName;
+	
 	//hotel relates info
 	private HotelOrderModel hotel;
 	

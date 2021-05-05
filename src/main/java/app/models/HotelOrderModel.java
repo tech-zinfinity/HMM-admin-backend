@@ -14,7 +14,7 @@ public class HotelOrderModel {
 	private Address address;
 	private ContactInfo contactinfo;
 	private String photo;
-	private User user;
+	private String userId;
 	private Double[] location;
 	private String gstNo;
 	private String panNo;

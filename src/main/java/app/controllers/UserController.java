@@ -80,7 +80,7 @@ public class UserController {
 	public Mono<GenericResponse<Object>> registerUser(@RequestBody User user){
 		return Mono.create(sink->{
 			if(!user.getEmail().isBlank() && !user.getPassword().isBlank()) {
-				userrepo.findByEmail(user.getEmail())
+				userrepo.findByUsername(user.getEmail())
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					String[] roles = {"ADMIN"};
 					user.setRoles(Arrays.asList(Role.ROLE_ADMIN));
@@ -110,11 +110,12 @@ public class UserController {
 	public Mono<GenericResponse<Object>> login(@PathVariable("username") String username, @PathVariable("password") String password){
 		return Mono.create(sink->{
 			if(Objects.nonNull(username) && Objects.nonNull(password)) {
-				userrepo.findByEmail(username)
+				userrepo.findByUsername(username)
 				.switchIfEmpty(Mono.fromRunnable( ()->{
 					sink.success(GenericResponse.builder().body(null).code(ResponseCode.WARN.name()).message("No user account").build());
 				}))
 				.subscribe(data ->{
+					System.out.println(data);
 					if(data.isActive()) {
 						if(data.getPassword().equals(password)) {
 							data.setPassword(null);

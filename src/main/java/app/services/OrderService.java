@@ -31,7 +31,14 @@ public class OrderService {
 			}
 			if(!Objects.nonNull(order.getItems())) {
 				sink.error(new ProcessTerminatedException("No Items available"));
-			}else {
+			}
+			if(!Objects.nonNull(order.getHotelId())) {
+				sink.error(new ProcessTerminatedException("Hotel id is not provided"));
+			}
+			if(!Objects.nonNull(order.getTableId())) {
+				sink.error(new ProcessTerminatedException("Table id is not provided"));
+			}
+			else {
 				if(order.getItems().size() == 0) {
 					sink.error(new ProcessTerminatedException("No Items available"));
 				}

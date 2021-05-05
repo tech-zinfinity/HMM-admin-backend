@@ -41,8 +41,10 @@ public class Transaction {
 	private String paidByEmail; 
 	private String paidTo; 
 	private String currency;
+	
 	private String gst;
 	private String pan;
+	private String hotelId;
 	
 	@Builder.Default
 	private boolean success = false;
