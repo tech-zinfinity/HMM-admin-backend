@@ -48,6 +48,7 @@ public class WebSecurityConfig {
                 "/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config#").permitAll()
 			.pathMatchers("/user/**").permitAll()
 			.pathMatchers("/ops/**").permitAll()
+			.pathMatchers("/gen/**").permitAll()
 			.pathMatchers("/consumer/signup").permitAll()
 			.pathMatchers("/consumer/login/**").permitAll()
 			.pathMatchers("/consumer/sendotp/**").permitAll()

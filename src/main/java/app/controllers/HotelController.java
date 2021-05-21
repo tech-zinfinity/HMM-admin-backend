@@ -1,7 +1,5 @@
 package app.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import app.constants.ResponseCode;
 import app.dboperations.DBOperations;
 import app.entities.Hotel;
-import app.entities.Menu;
 import app.enums.HotelStatus;
 import app.exceptions.ProcessTerminatedException;
 import app.http.response.GenericResponse;
